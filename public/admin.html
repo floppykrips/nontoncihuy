@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Admin — Nonton Cihuy</title>
+  <title>Admin — Nonton dirumah</title>
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet"/>
   <style>
     :root {
@@ -136,7 +136,7 @@
 
 <div id="loginScreen">
   <div class="login-box">
-    <h1>NONTON<span>CIHUY</span></h1>
+    <h1>NONTON<span>DIRUMAH</span></h1>
     <p style="font-size:.8rem;margin-bottom:.5rem">Admin Panel</p>
     <p>Masukkan password admin</p>
     <input class="login-input" type="password" id="pwInput" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/>
@@ -146,7 +146,7 @@
 </div>
 
 <header>
-  <div class="logo">NONTON<span>CIHUY</span><small>Admin</small></div>
+  <div class="logo">NONTON<span>DIRUMAH</span><small>Admin</small></div>
   <div class="header-right">
     <span class="api-status" id="apiStatus">⏳ Menghubungkan...</span>
     <a href="index.html" class="btn-back">← Website</a>
@@ -452,7 +452,7 @@ function exportData(){
   if(!allFilmsData.length){toast('Tidak ada data.','error');return}
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([JSON.stringify(allFilmsData,null,2)],{type:'application/json'}));
-  a.download='nontoncihuy-films.json'; a.click();
+  a.download='nontondirumah-films.json'; a.click();
   toast('📤 Diekspor!');
 }
 
