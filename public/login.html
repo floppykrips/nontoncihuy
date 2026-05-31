@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Masuk — NontondiRumah</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --red: #e8003d; --red-dark: #b00030;
+      --bg: #0a0a0f; --card: #141414;
+      --border: rgba(255,255,255,0.12);
+      --text: #f0f0f0; --muted: #a0a0a0;
+      --input-bg: #333;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+
+    body {
+      font-family: 'Nunito', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── BACKGROUND HERO ── */
+    .bg-hero {
+      position: fixed; inset: 0; z-index: 0;
+      background: url('https://image.tmdb.org/t/p/w1280/rSPw7tgCH9c6NqICZef4kZjFOQ5.jpg') center/cover no-repeat;
+      filter: brightness(0.35);
+    }
+    .bg-gradient {
+      position: fixed; inset: 0; z-index: 1;
+      background: linear-gradient(to bottom, rgba(10,10,15,.6) 0%, rgba(10,10,15,.4) 50%, rgba(10,10,15,.95) 100%);
+    }
+
+    /* ── NAVBAR ── */
+    .nav {
+      position: relative; z-index: 10;
+      padding: 1.5rem 3rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 2rem; letter-spacing: 2px; text-decoration: none; color: #fff;
+    }
+    .logo span { color: var(--red); }
+
+    /* ── MAIN CONTAINER ── */
+    .page {
+      position: relative; z-index: 10;
+      flex: 1; display: flex; align-items: center; justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    /* ── CARD ── */
+    .card {
+      background: rgba(20,20,20,0.92);
+      backdrop-filter: blur(20px);
+      border-radius: 8px;
+      padding: 3rem 3.5rem;
+      width: 100%; max-width: 440px;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    @media (max-width: 500px) { .card { padding: 2rem 1.5rem; } }
+
+    .card-title {
+      font-size: 2rem; font-weight: 900;
+      margin-bottom: 1.75rem;
+    }
+
+    /* ── TABS ── */
+    .tabs {
+      display: flex; gap: 0;
+      margin-bottom: 1.75rem;
+      border-bottom: 2px solid rgba(255,255,255,.1);
+    }
+    .tab {
+      flex: 1; text-align: center;
+      padding: .75rem 0; font-weight: 700;
+      font-size: .95rem; color: var(--muted);
+      cursor: pointer; border: none; background: none;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px; transition: all .2s;
+      font-family: 'Nunito', sans-serif;
+    }
+    .tab.active { color: #fff; border-bottom-color: var(--red); }
+
+    /* ── FORM ── */
+    .form-group { margin-bottom: 1rem; position: relative; }
+    .form-group input {
+      width: 100%; padding: 1rem 1rem .6rem;
+      background: var(--input-bg);
+      border: 1px solid transparent;
+      border-radius: 6px; color: #fff;
+      font-family: 'Nunito', sans-serif;
+      font-size: 1rem; outline: none;
+      transition: border-color .2s;
+      padding-top: 1.4rem;
+    }
+    .form-group input:focus { border-color: var(--red); }
+    .form-group label {
+      position: absolute; left: 1rem; top: 50%;
+      transform: translateY(-50%);
+      color: var(--muted); font-size: .95rem;
+      pointer-events: none; transition: all .15s;
+    }
+    .form-group input:focus ~ label,
+    .form-group input:not(:placeholder-shown) ~ label {
+      top: .55rem; transform: none;
+      font-size: .72rem; color: #aaa;
+    }
+
+    /* toggle password */
+    .pw-wrap { position: relative; }
+    .pw-toggle {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: var(--muted); cursor: pointer;
+      font-size: .75rem; font-weight: 700; letter-spacing: 1px;
+    }
+
+    /* ── SUBMIT BTN ── */
+    .btn-submit {
+      width: 100%; padding: 1rem;
+      background: var(--red); color: #fff;
+      border: none; border-radius: 6px;
+      font-family: 'Nunito', sans-serif;
+      font-weight: 900; font-size: 1rem;
+      cursor: pointer; margin-top: .5rem;
+      transition: background .2s, transform .1s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-submit:hover { background: var(--red-dark); }
+    .btn-submit:active { transform: scale(.98); }
+    .btn-submit:disabled { opacity: .6; cursor: not-allowed; }
+
+    /* ── DIVIDER ── */
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 1.25rem 0; color: var(--muted); font-size: .85rem;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px;
+      background: rgba(255,255,255,.12);
+    }
+
+    /* ── ERROR / SUCCESS ── */
+    .alert {
+      padding: .75rem 1rem; border-radius: 6px;
+      font-size: .875rem; margin-bottom: 1rem;
+      display: none;
+    }
+    .alert.show { display: block; }
+    .alert-error   { background: rgba(232,0,61,.15); border: 1px solid rgba(232,0,61,.4); color: #ff6b8a; }
+    .alert-success { background: rgba(0,201,122,.15); border: 1px solid rgba(0,201,122,.4); color: #00c97a; }
+
+    /* ── FOOTER NOTE ── */
+    .card-note {
+      margin-top: 1.5rem; font-size: .85rem;
+      color: var(--muted); text-align: center;
+    }
+    .card-note a { color: #fff; text-decoration: none; }
+    .card-note a:hover { text-decoration: underline; }
+
+    /* ── LOADING OVERLAY ── */
+    .loading-overlay {
+      position: fixed; inset: 0; z-index: 999;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 1rem;
+      opacity: 0; pointer-events: none; transition: opacity .3s;
+    }
+    .loading-overlay.show { opacity: 1; pointer-events: all; }
+    .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid rgba(255,255,255,.1);
+      border-top-color: var(--red);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative; z-index: 10;
+      text-align: center; padding: 1.5rem;
+      color: rgba(255,255,255,.2); font-size: .7rem;
+    }
+    footer a { color: rgba(255,255,255,.2); text-decoration: none; }
+    footer a:hover { color: rgba(255,255,255,.4); }
+  </style>
+</head>
+<body>
+
+<div class="bg-hero"></div>
+<div class="bg-gradient"></div>
+
+<!-- Loading overlay -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div style="color:var(--muted);font-size:.9rem">Mengalihkan...</div>
+</div>
+
+<!-- Navbar -->
+<nav class="nav">
+  <a href="login.html" class="logo">NONTON<span>di</span><span>Rumah</span></a>
+</nav>
+
+<!-- Main -->
+<div class="page">
+  <div class="card">
+    <h1 class="card-title" id="cardTitle">Masuk</h1>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" id="tabLogin"    onclick="switchTab('login')">Masuk</button>
+      <button class="tab"        id="tabRegister" onclick="switchTab('register')">Daftar</button>
+    </div>
+
+    <!-- Alert -->
+    <div class="alert alert-error"   id="alertError"></div>
+    <div class="alert alert-success" id="alertSuccess"></div>
+
+    <!-- Form -->
+    <div id="formLogin">
+      <div class="form-group">
+        <input type="email" id="loginEmail" placeholder=" " autocomplete="email"/>
+        <label for="loginEmail">Alamat Email</label>
+      </div>
+      <div class="form-group pw-wrap">
+        <input type="password" id="loginPassword" placeholder=" " autocomplete="current-password"/>
+        <label for="loginPassword">Password</label>
+        <button class="pw-toggle" onclick="togglePw('loginPassword', this)" type="button">TAMPILKAN</button>
+      </div>
+      <button class="btn-submit" id="btnLogin" onclick="doLogin()">
+        Masuk
+      </button>
+      <div class="card-note" style="margin-top:1rem">
+        <a href="#" onclick="showForgot()">Lupa password?</a>
+      </div>
+    </div>
+
+    <div id="formRegister" style="display:none">
+      <div class="form-group">
+        <input type="text" id="regName" placeholder=" " autocomplete="name"/>
+        <label for="regName">Nama Lengkap</label>
+      </div>
+      <div class="form-group">
+        <input type="email" id="regEmail" placeholder=" " autocomplete="email"/>
+        <label for="regEmail">Alamat Email</label>
+      </div>
+      <div class="form-group pw-wrap">
+        <input type="password" id="regPassword" placeholder=" " autocomplete="new-password"/>
+        <label for="regPassword">Password (min. 6 karakter)</label>
+        <button class="pw-toggle" onclick="togglePw('regPassword', this)" type="button">TAMPILKAN</button>
+      </div>
+      <button class="btn-submit" id="btnRegister" onclick="doRegister()">
+        Buat Akun
+      </button>
+    </div>
+
+    <div id="formForgot" style="display:none">
+      <p style="color:var(--muted);font-size:.9rem;margin-bottom:1rem">Masukkan email lo, nanti kita kirim link reset password.</p>
+      <div class="form-group">
+        <input type="email" id="forgotEmail" placeholder=" "/>
+        <label for="forgotEmail">Alamat Email</label>
+      </div>
+      <button class="btn-submit" id="btnForgot" onclick="doForgot()">Kirim Link Reset</button>
+      <div class="card-note" style="margin-top:1rem">
+        <a href="#" onclick="switchTab('login')">← Kembali ke login</a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <a href="#" onclick="alert('NontondiRumah © 2026')">NontondiRumah</a> &nbsp;·&nbsp; Dibuat dengan ❤️
+</footer>
+
+<!-- Supabase JS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+  // ── CONFIG — ganti dengan URL & anon key Supabase lo ──
+  const SUPABASE_URL      = 'https://xrdvqblgmrufnqcuwrka.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_uTU3OtKYqIhyKZBCzAm7Aw_s7GRnEEd';
+
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // ── CEK KALAU UDAH LOGIN, REDIRECT KE INDEX ──
+  (async () => {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) window.location.href = 'index.html';
+  })();
+
+  // ── TABS ──
+  let activeTab = 'login';
+  function switchTab(tab) {
+    activeTab = tab;
+    clearAlerts();
+    document.getElementById('formLogin').style.display    = tab === 'login'    ? '' : 'none';
+    document.getElementById('formRegister').style.display = tab === 'register' ? '' : 'none';
+    document.getElementById('formForgot').style.display   = 'none';
+    document.getElementById('cardTitle').textContent = tab === 'login' ? 'Masuk' : 'Buat Akun';
+    document.getElementById('tabLogin').classList.toggle('active',    tab === 'login');
+    document.getElementById('tabRegister').classList.toggle('active', tab === 'register');
+  }
+
+  function showForgot() {
+    clearAlerts();
+    document.getElementById('formLogin').style.display    = 'none';
+    document.getElementById('formForgot').style.display   = '';
+    document.getElementById('cardTitle').textContent = 'Reset Password';
+  }
+
+  // ── ALERTS ──
+  function clearAlerts() {
+    document.getElementById('alertError').classList.remove('show');
+    document.getElementById('alertSuccess').classList.remove('show');
+  }
+  function showError(msg) {
+    const el = document.getElementById('alertError');
+    el.textContent = msg; el.classList.add('show');
+    document.getElementById('alertSuccess').classList.remove('show');
+  }
+  function showSuccess(msg) {
+    const el = document.getElementById('alertSuccess');
+    el.textContent = msg; el.classList.add('show');
+    document.getElementById('alertError').classList.remove('show');
+  }
+
+  // ── PASSWORD TOGGLE ──
+  function togglePw(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const isText = input.type === 'text';
+    input.type = isText ? 'password' : 'text';
+    btn.textContent = isText ? 'TAMPILKAN' : 'SEMBUNYIKAN';
+  }
+
+  // ── LOGIN ──
+  async function doLogin() {
+    clearAlerts();
+    const email    = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    if (!email || !password) { showError('Email dan password harus diisi.'); return; }
+
+    const btn = document.getElementById('btnLogin');
+    btn.disabled = true; btn.textContent = 'Memproses...';
+
+    const { error } = await sb.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      showError(friendlyError(error.message));
+      btn.disabled = false; btn.textContent = 'Masuk';
+    } else {
+      document.getElementById('loadingOverlay').classList.add('show');
+      window.location.href = 'index.html';
+    }
+  }
+
+  // ── REGISTER ──
+  async function doRegister() {
+    clearAlerts();
+    const name     = document.getElementById('regName').value.trim();
+    const email    = document.getElementById('regEmail').value.trim();
+    const password = document.getElementById('regPassword').value;
+
+    if (!name)              { showError('Nama harus diisi.');                return; }
+    if (!email)             { showError('Email harus diisi.');               return; }
+    if (password.length < 6){ showError('Password minimal 6 karakter.');     return; }
+
+    const btn = document.getElementById('btnRegister');
+    btn.disabled = true; btn.textContent = 'Membuat akun...';
+
+    const { error } = await sb.auth.signUp({
+      email, password,
+      options: { data: { full_name: name } }
+    });
+
+    if (error) {
+      showError(friendlyError(error.message));
+      btn.disabled = false; btn.textContent = 'Buat Akun';
+    } else {
+      showSuccess('✅ Akun berhasil dibuat! Cek email lo untuk konfirmasi, lalu masuk.');
+      btn.disabled = false; btn.textContent = 'Buat Akun';
+      setTimeout(() => switchTab('login'), 2500);
+    }
+  }
+
+  // ── FORGOT PASSWORD ──
+  async function doForgot() {
+    clearAlerts();
+    const email = document.getElementById('forgotEmail').value.trim();
+    if (!email) { showError('Email harus diisi.'); return; }
+
+    const btn = document.getElementById('btnForgot');
+    btn.disabled = true; btn.textContent = 'Mengirim...';
+
+    const { error } = await sb.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + '/login.html'
+    });
+
+    btn.disabled = false; btn.textContent = 'Kirim Link Reset';
+    if (error) showError(friendlyError(error.message));
+    else showSuccess('📧 Link reset password sudah dikirim ke email lo!');
+  }
+
+  // ── FRIENDLY ERROR MESSAGES ──
+  function friendlyError(msg) {
+    if (msg.includes('Invalid login credentials')) return '❌ Email atau password salah.';
+    if (msg.includes('Email not confirmed'))       return '📧 Email belum dikonfirmasi. Cek inbox lo.';
+    if (msg.includes('User already registered'))   return '⚠️ Email ini sudah terdaftar. Coba masuk.';
+    if (msg.includes('Password should be'))        return '🔑 Password minimal 6 karakter.';
+    if (msg.includes('rate limit'))                return '⏳ Terlalu banyak percobaan. Tunggu sebentar.';
+    return '❌ ' + msg;
+  }
+
+  // Enter key support
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    if (activeTab === 'login')    doLogin();
+    else if (activeTab === 'register') doRegister();
+  });
+</script>
+</body>
+</html>

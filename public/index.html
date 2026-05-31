@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Nonton Film Cihuy 🎬</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <!-- ── NAVBAR ── -->
+  <nav>
+    <a href="#" class="nav-logo" onclick="navigate('beranda')">NONTON<span>CIHUY</span></a>
+    <ul class="nav-links">
+      <li><a href="#" data-page="beranda"  class="active" onclick="navigate('beranda')">Beranda</a></li>
+      <li><a href="#" data-page="trending"           onclick="navigate('trending')">Trending</a></li>
+      <li><a href="#" data-page="terbaru"            onclick="navigate('terbaru')">Terbaru</a></li>
+      <li><a href="#" data-page="serial"             onclick="navigate('serial')">Serial</a></li>
+    </ul>
+    <div class="nav-search">
+      <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+      </svg>
+      <input type="text" id="searchInput" placeholder="Cari film..."/>
+    </div>
+    <!-- User menu -->
+    <div class="nav-user" id="navUser">
+      <div class="user-avatar" id="userAvatar" onclick="toggleUserMenu()">U</div>
+      <div class="user-menu" id="userMenu">
+        <div class="user-email" id="userEmail">loading...</div>
+        <hr style="border-color:rgba(255,255,255,.1);margin:.5rem 0"/>
+        <button class="user-menu-item" onclick="doLogout()">🚪 Keluar</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ── PAGE CONTAINER ── -->
+  <div id="app"></div>
+
+  <!-- ── MODAL ── -->
+  <div class="modal-backdrop" id="modal" onclick="closeModalOutside(event)">
+    <div class="modal" id="modalBox">
+      <div class="modal-video-wrap" id="modalVideoWrap">
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <h2 class="modal-title" id="modalTitle"></h2>
+        <div class="modal-meta" id="modalMeta"></div>
+        <p class="modal-desc" id="modalDesc"></p>
+        <div class="modal-actions">
+          <button class="modal-btn modal-btn-primary" id="modalWatchBtn">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="5,3 19,12 5,21"/>
+            </svg>
+            Tonton
+          </button>
+          <button class="modal-btn modal-btn-secondary" onclick="closeModal()">✕ Tutup</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FOOTER (tombol admin tersembunyi di sini) ── -->
+  <footer id="mainFooter" style="
+    text-align:center;
+    padding:2rem 1rem 1.5rem;
+    color:rgba(255,255,255,.15);
+    font-size:.7rem;
+    margin-top:3rem;
+  ">
+    <p>© 2025 NontoCihuy — Semua hak dilindungi</p>
+    <p style="margin-top:.5rem">
+      <!-- Tombol admin: kecil, tersembunyi, ga menarik perhatian -->
+      <a href="admin.html" style="
+        color:rgba(255,255,255,.1);
+        text-decoration:none;
+        font-size:.65rem;
+        transition:color .3s;
+      " onmouseover="this.style.color='rgba(255,255,255,.3)'"
+         onmouseout="this.style.color='rgba(255,255,255,.1)'">⚙</a>
+    </p>
+  </footer>
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script>
+    // ── SUPABASE AUTH GUARD ──
+    const SUPABASE_URL      = 'https://xrdvqblgmrufnqcuwrka.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_uTU3OtKYqIhyKZBCzAm7Aw_s7GRnEEd';
+    const { createClient }  = supabase;
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    (async () => {
+      const { data: { session } } = await sb.auth.getSession();
+      if (!session) {
+        window.location.href = 'login.html';
+        return;
+      }
+      // Tampilkan info user di navbar
+      const user = session.user;
+      const name = user.user_metadata?.full_name || user.email || 'User';
+      document.getElementById('userEmail').textContent = user.email;
+      document.getElementById('userAvatar').textContent = name.charAt(0).toUpperCase();
+    })();
+
+    function toggleUserMenu() {
+      document.getElementById('userMenu').classList.toggle('open');
+    }
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.nav-user')) {
+        document.getElementById('userMenu')?.classList.remove('open');
+      }
+    });
+    async function doLogout() {
+      await sb.auth.signOut();
+      window.location.href = 'login.html';
+    }
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>

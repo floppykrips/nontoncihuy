@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin — Nonton Cihuy</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --red:#e8003d;--red-dark:#b00030;--gold:#f5c518;
+      --bg:#0a0a0f;--bg2:#12121a;--bg3:#1c1c28;--card:#16161f;
+      --border:rgba(255,255,255,0.07);--text:#f0f0f0;--muted:#8888aa;
+      --radius:12px;--green:#00c97a;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Nunito',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+    /* LOGIN */
+    #loginScreen{
+      position:fixed;inset:0;background:rgba(10,10,15,.97);
+      display:flex;align-items:center;justify-content:center;z-index:9999;
+      backdrop-filter:blur(10px);
+    }
+    .login-box{
+      background:var(--card);border:1px solid var(--border);
+      border-radius:var(--radius);padding:2.5rem;width:340px;text-align:center;
+    }
+    .login-box h1{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;margin-bottom:.25rem}
+    .login-box h1 span{color:var(--red)}
+    .login-box p{color:var(--muted);font-size:.85rem;margin-bottom:1.5rem}
+    .login-input{
+      width:100%;background:var(--bg3);border:1px solid var(--border);
+      border-radius:8px;color:var(--text);font-family:'Nunito',sans-serif;
+      font-size:1rem;padding:12px 16px;outline:none;margin-bottom:12px;
+      transition:border-color .2s;text-align:center;letter-spacing:3px;
+    }
+    .login-input:focus{border-color:var(--red)}
+    .login-btn{
+      width:100%;background:var(--red);color:#fff;border:none;
+      border-radius:8px;padding:12px;font-family:'Nunito',sans-serif;
+      font-weight:700;font-size:1rem;cursor:pointer;transition:background .2s;
+    }
+    .login-btn:hover{background:var(--red-dark)}
+    .login-err{color:#ff4466;font-size:.8rem;margin-top:8px;min-height:1.2em}
+
+    /* HEADER */
+    header{
+      background:var(--bg2);border-bottom:1px solid var(--border);
+      padding:0 2rem;height:60px;display:flex;align-items:center;
+      justify-content:space-between;position:sticky;top:0;z-index:100;
+    }
+    .logo{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:1px}
+    .logo span{color:var(--red)}
+    .logo small{font-family:'Nunito',sans-serif;font-size:.65rem;color:var(--muted);margin-left:8px;font-weight:600;text-transform:uppercase;letter-spacing:2px;vertical-align:middle}
+    .header-right{display:flex;gap:12px;align-items:center}
+    .btn-back{background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 14px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:.85rem;text-decoration:none;transition:all .2s}
+    .btn-back:hover{border-color:var(--text);color:var(--text)}
+    .logout-btn{background:transparent;border:1px solid #ff446644;color:#ff4466;padding:6px 14px;border-radius:8px;cursor:pointer;font-family:'Nunito',sans-serif;font-size:.85rem;transition:all .2s}
+    .logout-btn:hover{background:#ff446622}
+    .api-status{font-size:.75rem;padding:3px 10px;border-radius:20px;font-weight:700}
+    .api-ok{background:#00c97a22;color:var(--green);border:1px solid #00c97a44}
+    .api-err{background:#e8003d22;color:var(--red);border:1px solid #e8003d44}
+
+    /* LAYOUT */
+    .container{max-width:1200px;margin:0 auto;padding:2rem}
+    .stats-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:2rem}
+    .stat-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem;text-align:center}
+    .stat-num{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--red)}
+    .stat-label{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+    .panel-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start}
+    @media(max-width:800px){.panel-grid{grid-template-columns:1fr}}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem}
+    .card h2{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:1px;margin-bottom:1.25rem;display:flex;align-items:center;gap:8px}
+    .form-group{margin-bottom:1rem}
+    .form-group label{display:block;font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:6px}
+    .req{color:var(--red)}
+    .form-group input,.form-group textarea,.form-group select{
+      width:100%;background:var(--bg3);border:1px solid var(--border);
+      border-radius:8px;color:var(--text);font-family:'Nunito',sans-serif;
+      font-size:.9rem;padding:10px 14px;outline:none;transition:border-color .2s;
+    }
+    .form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--red)}
+    .form-group textarea{resize:vertical;min-height:90px}
+    .form-group select option{background:var(--bg3)}
+    .form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .hint{font-size:.75rem;color:var(--muted);margin-top:4px}
+    .poster-preview{width:100%;aspect-ratio:2/3;background:var(--bg3);border:1px dashed var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-top:6px;max-height:220px}
+    .poster-preview img{width:100%;height:100%;object-fit:cover}
+    .no-img{color:var(--muted);font-size:.8rem;text-align:center}
+    .btn-row{display:flex;gap:10px;margin-top:1.25rem;flex-wrap:wrap}
+    .btn{padding:10px 20px;border-radius:8px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;font-weight:700;font-size:.9rem;transition:all .2s;display:flex;align-items:center;gap:6px}
+    .btn:disabled{opacity:.5;cursor:not-allowed}
+    .btn-primary{background:var(--red);color:#fff}
+    .btn-primary:hover:not(:disabled){background:var(--red-dark);transform:translateY(-1px)}
+    .btn-secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border)}
+    .btn-secondary:hover{border-color:var(--text)}
+    .btn-danger{background:transparent;color:#ff4466;border:1px solid #ff4466}
+    .btn-danger:hover{background:#ff446622}
+    .list-header{display:flex;gap:10px;margin-bottom:1rem;align-items:center;flex-wrap:wrap}
+    .list-search{flex:1;min-width:120px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Nunito',sans-serif;font-size:.85rem;padding:8px 12px;outline:none}
+    .list-search:focus{border-color:var(--red)}
+    .filter-select{background:var(--bg3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Nunito',sans-serif;font-size:.85rem;padding:8px 10px;outline:none;cursor:pointer}
+    .film-list{display:flex;flex-direction:column;gap:10px;max-height:620px;overflow-y:auto}
+    .film-list::-webkit-scrollbar{width:5px}
+    .film-list::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px}
+    .film-item{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:12px;display:flex;gap:12px;align-items:center;transition:border-color .2s}
+    .film-item:hover{border-color:rgba(255,255,255,.15)}
+    .film-thumb{width:48px;height:72px;border-radius:6px;object-fit:cover;flex-shrink:0;background:var(--bg2)}
+    .film-info{flex:1;min-width:0}
+    .film-name{font-weight:700;font-size:.9rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .film-tags{display:flex;gap:6px;margin-top:4px;flex-wrap:wrap}
+    .tag{font-size:.7rem;padding:2px 8px;border-radius:20px;background:var(--bg2);color:var(--muted);border:1px solid var(--border)}
+    .tag-type{color:var(--gold);border-color:var(--gold)}
+    .tag-cat{color:#a78bfa;border-color:#a78bfa44}
+    .film-actions{display:flex;gap:6px;flex-shrink:0}
+    .icon-btn{width:32px;height:32px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.9rem;transition:all .2s}
+    .icon-btn:hover{background:var(--bg2);color:var(--text)}
+    .icon-btn.del:hover{border-color:#ff4466;color:#ff4466}
+    .toast{position:fixed;bottom:2rem;right:2rem;background:var(--green);color:#000;font-weight:700;padding:12px 20px;border-radius:10px;font-size:.9rem;transform:translateY(80px);opacity:0;transition:all .3s cubic-bezier(.175,.885,.32,1.275);z-index:9999;pointer-events:none}
+    .toast.show{transform:translateY(0);opacity:1}
+    .toast.error{background:var(--red);color:#fff}
+    .empty-state{text-align:center;padding:3rem 1rem;color:var(--muted)}
+    .empty-state .icon{font-size:3rem;margin-bottom:1rem}
+    .loading-spinner{text-align:center;padding:2rem;color:var(--muted);font-size:.9rem}
+    .confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s}
+    .confirm-overlay.open{opacity:1;pointer-events:all}
+    .confirm-box{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;max-width:360px;width:90%;text-align:center}
+    .confirm-box h3{margin-bottom:.75rem}
+    .confirm-box p{color:var(--muted);font-size:.9rem;margin-bottom:1.5rem}
+    .confirm-btns{display:flex;gap:10px;justify-content:center}
+    .card.editing{border-color:var(--gold)}
+    .edit-badge{background:var(--gold);color:#000;font-size:.7rem;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:8px}
+  </style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="login-box">
+    <h1>NONTON<span>CIHUY</span></h1>
+    <p style="font-size:.8rem;margin-bottom:.5rem">Admin Panel</p>
+    <p>Masukkan password admin</p>
+    <input class="login-input" type="password" id="pwInput" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()"/>
+    <button class="login-btn" onclick="doLogin()">Masuk →</button>
+    <div class="login-err" id="loginErr"></div>
+  </div>
+</div>
+
+<header>
+  <div class="logo">NONTON<span>CIHUY</span><small>Admin</small></div>
+  <div class="header-right">
+    <span class="api-status" id="apiStatus">⏳ Menghubungkan...</span>
+    <a href="index.html" class="btn-back">← Website</a>
+    <button class="logout-btn" onclick="doLogout()">Logout</button>
+  </div>
+</header>
+
+<div class="container">
+  <div class="stats-bar">
+    <div class="stat-card"><div class="stat-num" id="statTotal">–</div><div class="stat-label">Total Film</div></div>
+    <div class="stat-card"><div class="stat-num" id="statMovie">–</div><div class="stat-label">Film</div></div>
+    <div class="stat-card"><div class="stat-num" id="statSerial">–</div><div class="stat-label">Serial</div></div>
+    <div class="stat-card"><div class="stat-num" id="statFeatured">–</div><div class="stat-label">Featured</div></div>
+  </div>
+
+  <div class="panel-grid">
+    <div class="card" id="formCard">
+      <h2>➕ <span id="formTitle">Tambah Film</span><span class="edit-badge" id="editBadge" style="display:none">EDIT</span></h2>
+      <input type="hidden" id="editId"/>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Judul <span class="req">*</span></label>
+          <input type="text" id="fTitle" placeholder="Nama film..."/>
+        </div>
+        <div class="form-group">
+          <label>Tahun</label>
+          <input type="number" id="fYear" placeholder="2024" min="1900" max="2099"/>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Tipe</label>
+          <select id="fType">
+            <option value="movie">🎬 Film</option>
+            <option value="serial">📺 Serial TV</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Kategori</label>
+          <select id="fCategory">
+            <option value="trending">🔥 Trending</option>
+            <option value="terbaru">✨ Terbaru</option>
+            <option value="top">⭐ Top Rated</option>
+            <option value="serial">📺 Serial</option>
+            <option value="featured">🌟 Featured (Hero)</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Rating (0–10)</label>
+          <input type="number" id="fRating" placeholder="8.5" min="0" max="10" step="0.1"/>
+        </div>
+        <div class="form-group">
+          <label>Genre</label>
+          <input type="text" id="fGenre" placeholder="Action, Drama..."/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>URL Poster <span class="req">*</span></label>
+        <input type="url" id="fPoster" placeholder="https://..." oninput="previewPoster(this.value)"/>
+        <div class="hint">Link gambar poster (rasio 2:3 disarankan)</div>
+        <div class="poster-preview" id="posterPreview"><div class="no-img">🖼️<br/>Preview</div></div>
+      </div>
+      <div class="form-group">
+        <label>URL Video / Embed</label>
+        <input type="url" id="fVideo" placeholder="https://youtube.com/watch?v=..."/>
+        <div class="hint">YouTube otomatis di-embed. Google Drive / link langsung juga bisa.</div>
+      </div>
+      <div class="form-group">
+        <label>Deskripsi / Sinopsis</label>
+        <textarea id="fDesc" placeholder="Cerita singkat..."></textarea>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-primary" id="saveBtn" onclick="saveFilm()">✔ Simpan</button>
+        <button class="btn btn-secondary" onclick="resetForm()">↺ Reset</button>
+        <button class="btn btn-secondary" onclick="exportData()">📤 Export</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>🎞️ Daftar Film</h2>
+      <div class="list-header">
+        <input class="list-search" type="text" id="listSearch" placeholder="Cari film..." oninput="filterList()"/>
+        <select class="filter-select" id="filterCat" onchange="filterList()">
+          <option value="">Semua</option>
+          <option value="trending">Trending</option>
+          <option value="terbaru">Terbaru</option>
+          <option value="top">Top Rated</option>
+          <option value="serial">Serial</option>
+          <option value="featured">Featured</option>
+        </select>
+        <button class="btn btn-secondary" style="padding:8px 12px;font-size:.8rem" onclick="loadFilms()">🔄</button>
+      </div>
+      <div class="film-list" id="filmList">
+        <div class="loading-spinner">⏳ Memuat...</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <h3>Hapus Film?</h3>
+    <p id="confirmMsg">Yakin?</p>
+    <div class="confirm-btns">
+      <button class="btn btn-danger" onclick="confirmDelete()">🗑️ Hapus</button>
+      <button class="btn btn-secondary" onclick="closeConfirm()">Batal</button>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const API_BASE  = '/api/films';
+const TOKEN_KEY = 'nc_admin_token';
+let adminToken  = '';
+let allFilmsData = [];
+let pendingDeleteId = null;
+
+// ── LOGIN ──
+function doLogin() {
+  const pw = document.getElementById('pwInput').value.trim();
+  if (!pw) return;
+  adminToken = pw;
+  fetch(API_BASE, { headers: { 'x-admin-token': pw } })
+    .then(r => {
+      if (r.status === 401) {
+        document.getElementById('loginErr').textContent = '❌ Password salah';
+        adminToken = '';
+        return;
+      }
+      sessionStorage.setItem(TOKEN_KEY, pw);
+      document.getElementById('loginScreen').style.display = 'none';
+      loadFilms();
+    })
+    .catch(() => {
+      sessionStorage.setItem(TOKEN_KEY, pw);
+      document.getElementById('loginScreen').style.display = 'none';
+      loadFilms();
+    });
+}
+function doLogout() { sessionStorage.removeItem(TOKEN_KEY); location.reload(); }
+
+function authHeaders() {
+  return { 'Content-Type': 'application/json', 'x-admin-token': adminToken };
+}
+
+// ── API ──
+async function apiGet(url)        { const r = await fetch(url); if(!r.ok) throw new Error(await r.text()); return r.json(); }
+async function apiPost(url, body) { const r = await fetch(url,{method:'POST',headers:authHeaders(),body:JSON.stringify(body)}); if(!r.ok) throw new Error(await r.text()); return r.json(); }
+async function apiPut(url, body)  { const r = await fetch(url,{method:'PUT',headers:authHeaders(),body:JSON.stringify(body)});  if(!r.ok) throw new Error(await r.text()); return r.json(); }
+async function apiDel(url)        { const r = await fetch(url,{method:'DELETE',headers:authHeaders()});                       if(!r.ok) throw new Error(await r.text()); return r.json(); }
+
+// ── LOAD ──
+async function loadFilms() {
+  document.getElementById('filmList').innerHTML = '<div class="loading-spinner">⏳ Memuat dari server...</div>';
+  try {
+    const data = await apiGet(API_BASE);
+    allFilmsData = data.results || [];
+    updateStats(); renderList(allFilmsData);
+    document.getElementById('apiStatus').textContent = '✅ Terhubung';
+    document.getElementById('apiStatus').className   = 'api-status api-ok';
+  } catch(e) {
+    document.getElementById('filmList').innerHTML = `<div class="empty-state"><div class="icon">⚠️</div><p>Gagal: ${e.message}</p></div>`;
+    document.getElementById('apiStatus').textContent = '❌ Gagal';
+    document.getElementById('apiStatus').className   = 'api-status api-err';
+  }
+}
+
+function updateStats() {
+  const db = allFilmsData;
+  document.getElementById('statTotal').textContent    = db.length;
+  document.getElementById('statMovie').textContent    = db.filter(f=>f.type==='movie').length;
+  document.getElementById('statSerial').textContent   = db.filter(f=>f.type==='serial').length;
+  document.getElementById('statFeatured').textContent = db.filter(f=>f.category==='featured').length;
+}
+
+// ── POSTER ──
+function previewPoster(url) {
+  const w = document.getElementById('posterPreview');
+  w.innerHTML = url ? `<img src="${url}" onerror="this.parentNode.innerHTML='<div class=\\'no-img\\'>❌ Gagal</div>'"/>` : '<div class="no-img">🖼️<br/>Preview</div>';
+}
+
+// ── SAVE ──
+async function saveFilm() {
+  const title  = document.getElementById('fTitle').value.trim();
+  const poster = document.getElementById('fPoster').value.trim();
+  if (!title)  { toast('⚠️ Judul wajib!', 'error'); return; }
+  if (!poster) { toast('⚠️ Poster wajib!', 'error'); return; }
+
+  const body = {
+    title, poster,
+    year:     document.getElementById('fYear').value.trim(),
+    video:    document.getElementById('fVideo').value.trim(),
+    desc:     document.getElementById('fDesc').value.trim(),
+    rating:   parseFloat(document.getElementById('fRating').value)||0,
+    type:     document.getElementById('fType').value,
+    category: document.getElementById('fCategory').value,
+    genre:    document.getElementById('fGenre').value.trim(),
+  };
+
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true; btn.textContent = '⏳ Menyimpan...';
+  const editId = document.getElementById('editId').value;
+  try {
+    if (editId) { await apiPut(`${API_BASE}/${editId}`, body); toast('✅ Film diperbarui!'); }
+    else        { await apiPost(API_BASE, body);               toast('✅ Film ditambahkan!'); }
+    resetForm(); await loadFilms();
+  } catch(e) {
+    toast('❌ Gagal: '+e.message,'error');
+  } finally {
+    btn.disabled = false; btn.textContent = '✔ Simpan';
+  }
+}
+
+// ── EDIT ──
+function editFilm(id) {
+  const f = allFilmsData.find(x => (x.id||x._id) === id); if(!f) return;
+  document.getElementById('editId').value    = id;
+  document.getElementById('fTitle').value   = f.title   ||'';
+  document.getElementById('fYear').value    = f.year    ||'';
+  document.getElementById('fPoster').value  = f.poster  ||'';
+  document.getElementById('fVideo').value   = f.video   ||'';
+  document.getElementById('fDesc').value    = f.desc    ||'';
+  document.getElementById('fRating').value  = f.rating  ||'';
+  document.getElementById('fGenre').value   = f.genre   ||'';
+  document.getElementById('fType').value    = f.type    ||'movie';
+  document.getElementById('fCategory').value= f.category||'trending';
+  document.getElementById('formTitle').textContent = 'Edit Film';
+  document.getElementById('editBadge').style.display = 'inline-block';
+  document.getElementById('formCard').classList.add('editing');
+  previewPoster(f.poster);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── DELETE ──
+function deleteFilm(id) {
+  const f = allFilmsData.find(x=>(x.id||x._id)===id); if(!f) return;
+  pendingDeleteId = id;
+  document.getElementById('confirmMsg').textContent = `Hapus "${f.title}"?`;
+  document.getElementById('confirmOverlay').classList.add('open');
+}
+async function confirmDelete() {
+  if(!pendingDeleteId) return;
+  try { await apiDel(`${API_BASE}/${pendingDeleteId}`); toast('🗑️ Dihapus.'); await loadFilms(); }
+  catch(e) { toast('❌ Gagal: '+e.message,'error'); }
+  pendingDeleteId=null; closeConfirm();
+}
+function closeConfirm(){ document.getElementById('confirmOverlay').classList.remove('open'); pendingDeleteId=null; }
+
+// ── RESET ──
+function resetForm() {
+  ['editId','fTitle','fYear','fPoster','fVideo','fDesc','fRating','fGenre'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('fType').value='movie';
+  document.getElementById('fCategory').value='trending';
+  document.getElementById('formTitle').textContent='Tambah Film';
+  document.getElementById('editBadge').style.display='none';
+  document.getElementById('formCard').classList.remove('editing');
+  previewPoster('');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── LIST ──
+function filterList() {
+  const q   = document.getElementById('listSearch').value.toLowerCase();
+  const cat = document.getElementById('filterCat').value;
+  let db = allFilmsData;
+  if(q)   db = db.filter(f=>f.title.toLowerCase().includes(q));
+  if(cat) db = db.filter(f=>f.category===cat);
+  renderList(db);
+}
+function renderList(db) {
+  const el = document.getElementById('filmList');
+  if(!db.length){
+    el.innerHTML=`<div class="empty-state"><div class="icon">${allFilmsData.length?'🔍':'🎬'}</div><p>${allFilmsData.length?'Tidak ada hasil.':'Belum ada film!'}</p></div>`;
+    return;
+  }
+  const catLabel={trending:'🔥 Trending',terbaru:'✨ Terbaru',top:'⭐ Top',serial:'📺 Serial',featured:'🌟 Featured'};
+  el.innerHTML = db.map(f => {
+    const fid = f.id||f._id||'';
+    return `<div class="film-item">
+      <img class="film-thumb" src="${f.poster}" alt="${f.title}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%2248%22 height=%2272%22%3E%3Crect width=%2248%22 height=%2272%22 fill=%22%2316161f%22/%3E%3C/svg%3E'"/>
+      <div class="film-info">
+        <div class="film-name">${f.title}</div>
+        <div class="film-tags">
+          <span class="tag tag-type">${f.type==='serial'?'📺 Serial':'🎬 Film'}</span>
+          <span class="tag tag-cat">${catLabel[f.category]||f.category}</span>
+          ${f.year?`<span class="tag">${f.year}</span>`:''}
+          ${f.rating?`<span class="tag">★ ${parseFloat(f.rating).toFixed(1)}</span>`:''}
+        </div>
+      </div>
+      <div class="film-actions">
+        <button class="icon-btn" onclick="editFilm('${fid}')">✏️</button>
+        <button class="icon-btn del" onclick="deleteFilm('${fid}')">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── EXPORT ──
+function exportData(){
+  if(!allFilmsData.length){toast('Tidak ada data.','error');return}
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(allFilmsData,null,2)],{type:'application/json'}));
+  a.download='nontoncihuy-films.json'; a.click();
+  toast('📤 Diekspor!');
+}
+
+// ── TOAST ──
+function toast(msg,type='success'){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show'+(type==='error'?' error':'');
+  clearTimeout(window._tt); window._tt=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ── INIT ──
+(function(){
+  const saved = sessionStorage.getItem(TOKEN_KEY);
+  if(saved){ adminToken=saved; document.getElementById('loginScreen').style.display='none'; loadFilms(); }
+})();
+</script>
+</body>
+</html>
