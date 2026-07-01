@@ -353,7 +353,10 @@ async function saveFilm() {
   btn.disabled = true; btn.textContent = '⏳ Menyimpan...';
   const editId = document.getElementById('editId').value;
   try {
-    if (editId) { await apiPut(`${API_BASE}/${editId}`, body); toast('✅ Film diperbarui!'); }
+    if (editId) { await apiPut(API_BASE, {
+    id: editId,
+    ...body
+}); toast('✅ Film diperbarui!'); }
     else        { await apiPost(API_BASE, body);               toast('✅ Film ditambahkan!'); }
     resetForm(); await loadFilms();
   } catch(e) {
