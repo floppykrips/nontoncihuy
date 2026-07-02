@@ -353,7 +353,7 @@ async function saveFilm() {
   btn.disabled = true; btn.textContent = '⏳ Menyimpan...';
   const editId = document.getElementById('editId').value;
   try {
-    if (editId) { await apiPut(API_BASE, {
+    if (editId) { await apiPut(`${API_BASE}/${editId}`, {
     id: editId,
     ...body
 }); toast('✅ Film diperbarui!'); }
